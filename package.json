@@ -1,0 +1,40 @@
+{
+    "name": "distributeur-automatique",
+    "version": "1.0.0",
+    "description": "Système de distributeur automatique avec gestion des stocks et des transactions",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js"
+    },
+    "keywords": [
+        "vending-machine",
+        "automation",
+        "javascript"
+    ],
+    "author": "Etudiant",
+    "license": "MIT",
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.2"
+    },
+    "dependencies": {
+        "readline-sync": "^1.4.10"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "collectCoverageFrom": [
+            "src/**/*.js",
+            "!src/index.js"
+        ],
+        "coverageDirectory": "coverage",
+        "coverageReporters": [
+            "text",
+            "html",
+            "lcov"
+        ]
+    }
+}
