@@ -7,10 +7,15 @@ const { TransactionLogger } = require("./TransactionLogger");
  * Distributeur automatique principal
  */
 class VendingMachine {
-  constructor(currency = new Currency("EUR", "Euro")) {
-    this.inventory = new Inventory();
-    this.coinManager = new CoinManager(currency);
-    this.transactionLogger = new TransactionLogger();
+  constructor(
+    inventory = null,
+    coinManager = null,
+    transactionLogger = null,
+    currency = new Currency("EUR", "Euro")
+  ) {
+    this.inventory = inventory || new Inventory();
+    this.coinManager = coinManager || new CoinManager(currency);
+    this.transactionLogger = transactionLogger || new TransactionLogger();
     this.insertedMoney = 0;
     this.selectedProduct = null;
   }
@@ -279,65 +284,6 @@ class VendingMachine {
         this.coinManager.getTotalMoney()
       ),
     };
-  }
-
-  /**
-   * Réapprovisionne un produit (fonctionnalité admin)
-   * @param {string} productId - ID du produit
-   * @param {number} quantity - Quantité à ajouter
-   * @returns {Object}
-   */
-  restockProduct(productId, quantity) {
-    try {
-      this.inventory.restockProduct(productId, quantity);
-      this.transactionLogger.log("restock", productId, 0, true, { quantity });
-      return {
-        success: true,
-        message: `Produit ${productId} réapprovisionné: +${quantity} unités`,
-      };
-    } catch (error) {
-      this.transactionLogger.log("error", productId, 0, false, {
-        error: error.message,
-        operation: "restock",
-      });
-      return { success: false, message: error.message };
-    }
-  }
-
-  /**
-   * Ajoute de la monnaie (fonctionnalité admin)
-   * @param {number} denomination - Valeur de la pièce/billet
-   * @param {number} count - Nombre de pièces/billets
-   * @returns {Object}
-   */
-  addCoins(denomination, count) {
-    try {
-      this.coinManager.addCoins(denomination, count);
-      return {
-        success: true,
-        message: `${count} pièces de ${this.coinManager.formatAmount(
-          denomination
-        )} ajoutées`,
-      };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  }
-
-  /**
-   * Récupère les statistiques de la machine
-   * @returns {Object}
-   */
-  getStatistics() {
-    return this.transactionLogger.getStatistics();
-  }
-
-  /**
-   * Récupère l'historique des transactions
-   * @returns {Array}
-   */
-  getTransactionHistory() {
-    return this.transactionLogger.getAllTransactions();
   }
 }
 

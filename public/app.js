@@ -6,7 +6,6 @@ class VendingMachineUI {
   constructor() {
     this.vendingMachine = new VendingMachine();
     this.selectedProduct = null;
-    this.isAdminMode = false;
     this.initializeProducts();
     this.setupEventListeners();
     this.updateDisplay();
@@ -50,18 +49,6 @@ class VendingMachineUI {
       .addEventListener("click", () => {
         this.returnChange();
       });
-
-    // Bouton admin
-    document.getElementById("admin-toggle").addEventListener("click", () => {
-      this.toggleAdminMode();
-    });
-
-    // Onglets admin
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        this.switchTab(e.target.dataset.tab);
-      });
-    });
 
     // Slots de récupération - permettre de vider en cliquant
     document.getElementById("product-slot").addEventListener("click", () => {
@@ -210,9 +197,6 @@ class VendingMachineUI {
   updateDisplay() {
     this.updateBalance();
     this.updateProducts();
-    if (this.isAdminMode) {
-      this.updateAdminDisplay();
-    }
   }
 
   updateBalance() {
@@ -275,230 +259,29 @@ class VendingMachineUI {
     }
   }
 
-  toggleAdminMode() {
-    this.isAdminMode = !this.isAdminMode;
-    const adminSection = document.getElementById("admin-section");
-
-    if (this.isAdminMode) {
-      adminSection.style.display = "block";
-      this.updateAdminDisplay();
-      this.showMessage("Mode administrateur activé", "info");
-    } else {
-      adminSection.style.display = "none";
-      this.showMessage("Mode administrateur désactivé", "info");
-    }
-  }
-
-  switchTab(tabName) {
-    // Gérer les boutons d'onglets
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.classList.remove("active");
-    });
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
-
-    // Gérer le contenu des onglets
-    document.querySelectorAll(".tab-content").forEach((content) => {
-      content.classList.remove("active");
-    });
-    document.getElementById(`${tabName}-tab`).classList.add("active");
-
-    // Mettre à jour l'affichage selon l'onglet
-    this.updateAdminDisplay(tabName);
-  }
-
-  updateAdminDisplay(activeTab = "inventory") {
-    if (activeTab === "inventory") {
-      this.updateInventoryTab();
-    } else if (activeTab === "stats") {
-      this.updateStatsTab();
-    } else if (activeTab === "coins") {
-      this.updateCoinsTab();
-    }
-  }
-
-  updateInventoryTab() {
-    const container = document.getElementById("inventory-list");
-    const products = this.vendingMachine.inventory.getAllProducts();
-
-    let html = `
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Nom</th>
-                        <th>Prix</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-    Object.entries(products).forEach(([code, productData]) => {
-      html += `
-                <tr>
-                    <td>${code}</td>
-                    <td>${productData.product.name}</td>
-                    <td>${productData.product.price.toFixed(2)}€</td>
-                    <td>${productData.stock}</td>
-                    <td>
-                        <button onclick="ui.addStock('${code}')" class="action-btn" style="padding: 5px 10px; margin: 2px;">+1</button>
-                        <button onclick="ui.removeStock('${code}')" class="action-btn" style="padding: 5px 10px; margin: 2px;">-1</button>
-                    </td>
-                </tr>
-            `;
-    });
-
-    html += "</tbody></table>";
-    container.innerHTML = html;
-  }
-
-  updateStatsTab() {
-    const container = document.getElementById("stats-display");
-    const stats = this.vendingMachine.getStatistics();
-
-    let html = `
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">${stats.totalTransactions}</div>
-                    <div class="stat-label">Transactions totales</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.totalRevenue.toFixed(
-                      2
-                    )}€</div>
-                    <div class="stat-label">Revenus totaux</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.totalProductsSold}</div>
-                    <div class="stat-label">Produits vendus</div>
-                </div>
-            </div>
-        `;
-
-    if (stats.topSellingProducts && stats.topSellingProducts.length > 0) {
-      html += `
-                <h3>Produits les plus vendus</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Produit</th>
-                            <th>Quantité vendue</th>
-                            <th>Revenus</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-      stats.topSellingProducts.forEach((item) => {
-        html += `
-                    <tr>
-                        <td>${item.product}</td>
-                        <td>${item.quantity}</td>
-                        <td>${item.revenue.toFixed(2)}€</td>
-                    </tr>
-                `;
-      });
-
-      html += "</tbody></table>";
-    }
-
-    container.innerHTML = html;
-  }
-
-  updateCoinsTab() {
-    const container = document.getElementById("coins-inventory");
-    const coinInventory = this.vendingMachine.coinManager.getCoinInventory();
-
-    let html = `
-            <h3>Inventaire des pièces</h3>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Dénomination</th>
-                        <th>Quantité</th>
-                        <th>Valeur totale</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-    Object.entries(coinInventory).forEach(([denomination, quantity]) => {
-      const value = parseFloat(denomination);
-      const totalValue = value * quantity;
-
-      html += `
-                <tr>
-                    <td>${value.toFixed(2)}€</td>
-                    <td>${quantity}</td>
-                    <td>${totalValue.toFixed(2)}€</td>
-                </tr>
-            `;
-    });
-
-    html += "</tbody></table>";
-
-    const totalValue = Object.entries(coinInventory).reduce(
-      (sum, [denomination, quantity]) => {
-        return sum + parseFloat(denomination) * quantity;
-      },
-      0
-    );
-
-    html += `<p><strong>Valeur totale en caisse: ${totalValue.toFixed(
-      2
-    )}€</strong></p>`;
-
-    container.innerHTML = html;
-  }
-
-  // Méthodes pour l'administration (appelées depuis les boutons)
-  addStock(code) {
-    try {
-      const product = this.vendingMachine.inventory.getProduct(code);
-      this.vendingMachine.inventory.addProduct(product, 1);
-      this.updateDisplay();
-      this.showMessage(`Stock ajouté pour ${code}`, "success");
-    } catch (error) {
-      this.showMessage(error.message, "error");
-    }
-  }
-
-  removeStock(code) {
-    try {
-      const currentStock = this.vendingMachine.inventory.getStock(code);
-      if (currentStock > 0) {
-        this.vendingMachine.inventory.removeStock(code, 1);
-        this.updateDisplay();
-        this.showMessage(`Stock retiré pour ${code}`, "success");
-      } else {
-        this.showMessage("Stock déjà à zéro", "warning");
-      }
-    } catch (error) {
-      this.showMessage(error.message, "error");
-    }
-  }
-
-  showMessage(text, type = "info") {
-    const container = document.getElementById("message-container");
+  showMessage(text, type) {
+    const messageContainer = document.getElementById("message-container");
     const message = document.createElement("div");
-    message.className = `message ${type}`;
+    message.className = `message ${type} slide-in`;
     message.textContent = text;
 
-    container.appendChild(message);
+    messageContainer.appendChild(message);
 
     // Supprimer le message après 3 secondes
     setTimeout(() => {
       if (message.parentNode) {
-        message.parentNode.removeChild(message);
+        message.classList.add("slide-out");
+        setTimeout(() => {
+          if (message.parentNode) {
+            message.parentNode.removeChild(message);
+          }
+        }, 300);
       }
     }, 3000);
   }
 }
 
-// Initialiser l'application quand le DOM est chargé
+// Initialiser l'application
 document.addEventListener("DOMContentLoaded", () => {
-  window.ui = new VendingMachineUI();
+  new VendingMachineUI();
 });
-
-export { VendingMachineUI };
