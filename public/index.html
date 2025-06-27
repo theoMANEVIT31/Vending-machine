@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributeur Automatique</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shopping-cart"></i> Distributeur Automatique</h1>
+            <div class="balance-display">
+                <span>Crédit: </span>
+                <span id="balance">0.00€</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Section des produits -->
+            <section class="products-section">
+                <h2>Sélectionnez votre produit</h2>
+                <div class="products-grid" id="products-grid">
+                    <!-- Les produits seront générés dynamiquement -->
+                </div>
+            </section>
+
+            <!-- Section de paiement -->
+            <section class="payment-section">
+                <h2>Insérer la monnaie</h2>
+                <div class="coins-container">
+                    <button class="coin-btn" data-value="0.05">5¢</button>
+                    <button class="coin-btn" data-value="0.10">10¢</button>
+                    <button class="coin-btn" data-value="0.20">20¢</button>
+                    <button class="coin-btn" data-value="0.50">50¢</button>
+                    <button class="coin-btn" data-value="1.00">1€</button>
+                    <button class="coin-btn" data-value="2.00">2€</button>
+                </div>
+                <div class="action-buttons">
+                    <button id="cancel-btn" class="action-btn cancel"><i class="fas fa-times"></i> Annuler</button>
+                    <button id="return-change-btn" class="action-btn return"><i class="fas fa-coins"></i> Récupérer la monnaie</button>
+                </div>
+            </section>
+
+            <!-- Section de distribution -->
+            <section class="dispenser-section">
+                <h2>Récupération</h2>
+                <div class="dispenser">
+                    <div class="product-slot" id="product-slot">
+                        <i class="fas fa-gift"></i>
+                        <span>Votre produit apparaîtra ici</span>
+                    </div>
+                    <div class="change-slot" id="change-slot">
+                        <i class="fas fa-coins"></i>
+                        <span>Votre monnaie apparaîtra ici</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Section admin -->
+        <section class="admin-section" id="admin-section" style="display: none;">
+            <h2>Mode Administrateur</h2>
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="inventory">Inventaire</button>
+                <button class="tab-btn" data-tab="stats">Statistiques</button>
+                <button class="tab-btn" data-tab="coins">Monnaie</button>
+            </div>
+            <div class="admin-content">
+                <div id="inventory-tab" class="tab-content active">
+                    <div id="inventory-list"></div>
+                </div>
+                <div id="stats-tab" class="tab-content">
+                    <div id="stats-display"></div>
+                </div>
+                <div id="coins-tab" class="tab-content">
+                    <div id="coins-inventory"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Messages et notifications -->
+        <div id="message-container" class="message-container"></div>
+
+        <!-- Bouton admin -->
+        <button id="admin-toggle" class="admin-toggle" title="Mode Administrateur">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

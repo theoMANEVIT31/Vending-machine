@@ -60,10 +60,20 @@ tests/
 npm install
 ```
 
-### Exécution de l'application
+### Démarrage de l'application
+
+#### Interface Web (Recommandée)
 
 ```bash
 npm start
+```
+
+Puis ouvrez votre navigateur à l'adresse : `http://localhost:3000`
+
+#### Interface Console
+
+```bash
+npm run start:console
 ```
 
 ### Tests
@@ -88,7 +98,19 @@ npm run test:coverage
 
 ## Utilisation
 
-L'application démarre avec une interface console interactive où vous pouvez :
+### Interface Web
+
+L'interface web offre une expérience moderne et intuitive :
+
+1. **Sélection de produits** - Cliquez sur un produit pour le sélectionner
+2. **Insertion de monnaie** - Cliquez sur les boutons de pièces
+3. **Achat automatique** - L'achat se fait automatiquement si le montant est suffisant
+4. **Récupération** - Cliquez sur les zones de récupération pour vider les slots
+5. **Mode administrateur** - Cliquez sur l'icône d'engrenage (⚙️) pour accéder aux fonctions d'administration
+
+### Interface Console
+
+L'interface console propose un menu textuel où vous pouvez :
 
 1. **Voir les produits disponibles** - Affiche la liste des produits avec prix et stock
 2. **Sélectionner un produit** - Choisir le produit à acheter
