@@ -1,219 +1,277 @@
-# 🏪 Distributeur Automatique - Système de Vending Machine
+# 🏪 Distributeur Automatique
 
-## 📋 Vue d'ensemble
+Un système de distributeur automatique moderne implémenté en JavaScript avec une interface web interactive et une architecture modulaire robuste.
 
-Ce projet implémente un système complet de distributeur automatique avec gestion des stocks, des transactions et de la monnaie. Le système est développé en JavaScript avec une suite de tests unitaires complète et dispose d'une interface web moderne avec support multi-devises.
+## 📋 Table des matières
 
-## ✅ Fonctionnalités Implémentées
+- [Description](#description)
+- [Fonctionnalités](#fonctionnalités)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Utilisation](#utilisation)
+- [Tests](#tests)
+- [API](#api)
+- [Développement](#développement)
 
-### 🎯 **TOUTES LES EXIGENCES SONT REMPLIES** ✅
+## 📖 Description
 
-| Exigence | Statut | Implémentation |
-|----------|--------|----------------|
-| **Sélection de produit et affichage du prix** | ✅ **COMPLET** | `VendingMachine.selectProduct()` - Sélectionne un produit et affiche ses informations complètes |
-| **Acceptation d'argent (valeurs entières en centimes)** | ✅ **COMPLET** | `VendingMachine.insertMoney()` - Accepte uniquement des dénominations valides |
-| **Validation du montant suffisant** | ✅ **COMPLET** | `VendingMachine.purchase()` - Vérifie si l'argent inséré couvre le prix |
-| **Distribution et rendu de monnaie exact** | ✅ **COMPLET** | `VendingMachine.purchase()` + `CoinManager.dispenseChange()` - Calcul et distribution automatiques |
-| **Gestion des erreurs "rupture de stock"** | ✅ **COMPLET** | `Product.isAvailable()` + `VendingMachine.selectProduct()` - Vérification complète |
-| **Classe Inventory avec restockage** | ✅ **COMPLET** | `Inventory.restockProduct()` - Gestion complète des stocks |
-| **Calcul de monnaie complexe (moins de pièces)** | ✅ **COMPLET** | `CoinManager.calculateChange()` - Algorithme optimisé glouton |
-| **Gestion "monnaie insuffisante"** | ✅ **COMPLET** | `CoinManager.canMakeChange()` - Vérification avant transaction |
-| **Suivi de l'argent total dans la machine** | ✅ **COMPLET** | `CoinManager.getTotalMoney()` - Comptabilisation en temps réel |
-| **Retour d'argent si annulation** | ✅ **COMPLET** | `VendingMachine.cancel()` - Remboursement intégral |
-| **Gestion uniquement de l'argent physique** | ✅ **COMPLET** | Système basé sur dénominations physiques uniquement |
+Ce projet implémente un système complet de distributeur automatique qui gère la sélection de produits, l'acceptation de monnaie physique, la gestion des stocks, le calcul de rendu de monnaie optimisé, et le logging des transactions. Le système supporte également les devises multiples et dispose d'une interface web moderne.
 
-## 🆕 Nouvelles Fonctionnalités Avancées
+## ✨ Fonctionnalités
 
-### 🌍 **Système Multi-Devises** 
-- **Classe Currency** : Gestion complète des devises avec taux de change
-- **Support Multi-Devises** : EUR (€), USD ($), GBP (£)
-- **Conversion Automatique** : Conversion en temps réel du crédit et des prix
-- **Interface Utilisateur** : Sélecteur de devise dans l'interface web
+### Fonctionnalités de base ✅
 
-### 🖥️ **Interface Web Moderne**
-- **Interface Responsive** : Design moderne avec Font Awesome
-- **Mode Administrateur** : Gestion avancée des stocks et de la machine
-- **Affichage en Temps Réel** : Statut de la machine et transactions
-- **Serveur Express** : API REST pour l'interface web (`server.js`)
+- **Sélection de produits** : Interface intuitive pour choisir parmi les produits disponibles
+- **Affichage des prix** : Prix clairement affichés pour chaque produit
+- **Acceptation de monnaie** : Support des pièces de monnaie physiques (centimes/centimes d'euro)
+- **Validation des paiements** : Vérification automatique des montants insuffisants
+- **Distribution et rendu de monnaie** : Calcul précis du rendu pour les achats exacts
+- **Gestion des stocks** : Détection et signalement des produits en rupture de stock
+- **Système d'inventaire** : Module `Inventory` avec capacité de réapprovisionnement
+- **Calcul optimal de rendu** : Algorithme pour minimiser le nombre de pièces rendues
+- **Gestion des erreurs de monnaie** : Détection quand la machine ne peut pas rendre la monnaie exacte
+- **Suivi de l'argent total** : Comptabilisation de tout l'argent dans la machine
+- **Annulation de transaction** : Fonction pour récupérer toute la monnaie insérée
 
-### 📊 **Système de Logging Avancé**
-- **Classe TransactionLogger** : Enregistrement détaillé de toutes les transactions
-- **Historique Complet** : Achat, annulation, restockage, erreurs
-- **Filtrage** : Par type, période, statut de réussite
-- **Statistiques** : Ventes totales et analyses
+### Fonctionnalités avancées 🚀 (+4 points)
 
-### 🏦 **Gestion Externe des Pièces**
-- **ExternalCoinProvider** : Simulation d'une banque de pièces externe
-- **Approvisionnement Automatique** : Demande de pièces si stock insuffisant
-- **Gestion des Stocks** : Surveillance des réserves de monnaie
+- **Fournisseur externe de pièces** : Dépendance externe (`ExternalCoinProvider`) pour la gestion des pièces de rendu
+- **Support multi-devises** : Système de devises avec taux de change (EUR, USD, GBP)
+- **Logging des transactions** : Enregistrement complet de toutes les transactions (ventes, erreurs, réapprovisionnements)
 
-### 🔧 **Fonctionnalités Administrateur**
-- **Mode Admin** : Interface dédiée pour la gestion
-- **Restockage Produits** : Réapprovisionnement via interface
-- **Gestion Monnaie** : Ajout/retrait de pièces
-- **Historique Transactions** : Consultation des logs détaillés
+## 🏗️ Architecture
 
-### 💼 **API et Intégration**
-- **Formatage Intelligent** : Affichage des montants selon la devise
-- **Status Complet** : État détaillé de la machine via `getStatus()`
-- **Gestion d'Erreurs** : Messages d'erreur contextuels et logging
-- **Structure Modulaire** : Architecture facilement extensible
-
-## 🏗️ Architecture du Système
-
-### 📁 Structure des Classes
+### Structure du projet
 
 ```
 src/
-├── VendingMachine.js       # 🎰 Contrôleur principal avec gestion multi-devises
-├── Product.js              # 🥤 Gestion des produits
-├── Inventory.js            # 📦 Gestion des stocks
-├── CoinManager.js          # 💰 Gestion de la monnaie et devises
-├── TransactionLogger.js    # 📊 Historique détaillé des transactions
-├── ExternalCoinProvider.js # 🏦 Simulation banque de pièces externe
-└── index.js               # 🚀 Point d'entrée
+├── VendingMachine.js      # Classe principale du distributeur
+├── Product.js             # Modèle des produits
+├── Inventory.js           # Gestion des stocks
+├── CoinManager.js         # Gestion des pièces et devises
+├── ExternalCoinProvider.js # Fournisseur externe de pièces
+├── TransactionLogger.js   # Logging des transactions
+└── index.js              # Point d'entrée
 
-public/
-├── index.html             # 🌐 Interface web moderne
-├── app.js                 # ⚡ Application JavaScript front-end
-├── styles.css             # 🎨 Styles CSS responsifs
-└── modules/               # 📦 Modules front-end
-    ├── CoinManager.js
-    ├── VendingMachine.js
-    └── ... (autres modules)
+public/                   # Interface web
+├── index.html           # Interface utilisateur
+├── styles.css          # Styles CSS
+├── app.js             # Logique frontend
+└── modules/           # Modules frontend
 
-server.js                  # 🖥️ Serveur Express pour l'interface web
+tests/                 # Tests unitaires
+├── *.test.js         # Tests pour chaque module
+
+coverage/             # Rapports de couverture
 ```
 
-### 🔄 Flux de Fonctionnement
+### Classes principales
 
-1. **Initialisation** : `VendingMachine.initialize()` + `Currency` setup
-2. **Sélection Devise** : Interface web pour changer EUR/USD/GBP
-3. **Sélection Produit** : `selectProduct(id)` → Affiche prix converti
-4. **Paiement** : `insertMoney(amount)` → Validation des dénominations
-5. **Validation** : Vérification automatique du montant converti
-6. **Distribution** : `purchase()` → Produit + Monnaie optimale + Log
-7. **Alternative** : `cancel()` → Remboursement intégral avec conversion
-8. **Administration** : Interface admin pour restockage et gestion
+#### `VendingMachine`
+- Classe principale orchestrant toutes les opérations
+- Gère l'état des transactions et la logique métier
+- Intègre tous les autres modules
 
-## 🌍 Gestion Multi-Devises
+#### `Product`
+- Modèle représentant un produit
+- Propriétés : ID, nom, prix, quantité
+- Méthodes : vérification disponibilité, distribution, réapprovisionnement
 
-### Devises Supportées
-- **EUR (€)** : Devise par défaut (taux: 1.0)
-- **USD ($)** : Dollar américain (taux: 1.1)
-- **GBP (£)** : Livre sterling (taux: 0.85)
+#### `Inventory`
+- Gestion centralisée des stocks
+- Opérations CRUD sur les produits
+- Filtrage des produits disponibles
 
-### Fonctionnalités de Conversion
-- **Conversion Temps Réel** : Prix et crédit convertis automatiquement
-- **Conservation du Crédit** : Le montant inséré est converti lors du changement de devise
-- **Affichage Contextualisé** : Symboles monétaires appropriés (€, $, £)
-- **API de Conversion** : `Currency.convert()` pour conversions précises
+#### `CoinManager`
+- Gestion des pièces et calculs de rendu
+- Support multi-devises avec conversion
+- Algorithme optimisé pour le rendu de monnaie
 
-## 💰 Gestion de la Monnaie
+#### `TransactionLogger`
+- Enregistrement de toutes les transactions
+- Filtrage par type, période
+- Statistiques de ventes
 
-### Dénominations Supportées (Centimes)
-- **Pièces** : 1, 2, 5, 10, 20, 50, 100, 200 centimes
-- **Billets** : 500, 1000, 2000, 5000 centimes
+#### `ExternalCoinProvider`
+- Simulation d'un fournisseur externe de pièces
+- Banque de pièces virtuelle
+- API pour demander des pièces
 
-### Algorithme de Rendu
-- **Stratégie Gloutonne** : Moins de pièces/billets possible
-- **Validation Préalable** : Vérification de faisabilité avant achat
-- **Gestion d'Erreurs** : Blocage si rendu impossible
+## 🚀 Installation
 
+### Prérequis
+- Node.js (version 14+ recommandée)
+- npm ou yarn
 
-## 🧪 Tests et Qualité
+### Instructions
 
-### 📈 Couverture de Tests
-- **Tests Clean** : 28 tests essentiels
-- **Couverture** : ~78% statements, ~86% functions
-- **Performance** : <3 secondes d'exécution
-- **Structure** : 100% AAA (Arrange/Act/Assert)
-
-### 🎯 Règles de Tests Respectées
-- ✅ **One Behavior** : Un test = Un comportement
-- ✅ **No External Dependencies** : Tests isolés
-- ✅ **Fast Execution** : <100ms par test
-- ✅ **Deterministic** : Résultats prévisibles
-- ✅ **Isolated** : Tests indépendants
-
-### 🚀 Exécution des Tests
+1. **Cloner le projet**
 ```bash
-# Tests essentiels avec structure AAA
+git clone <repository-url>
+cd distributeur-automatique
+```
+
+2. **Installer les dépendances**
+```bash
+npm install
+```
+
+3. **Démarrer l'application**
+```bash
+npm start
+```
+
+L'application sera accessible sur `http://localhost:3000`
+
+## 💻 Utilisation
+
+### Interface Web
+
+1. **Sélection de devise** : Choisissez votre devise dans le sélecteur en haut à droite
+2. **Sélection de produit** : Cliquez sur un produit disponible
+3. **Insertion de monnaie** : Utilisez les boutons de pièces pour insérer de l'argent
+4. **Achat** : Une fois le montant suffisant inséré, le produit sera automatiquement distribué
+5. **Récupération de monnaie** : Utilisez le bouton "Récupérer la monnaie" pour annuler
+
+### Interface en ligne de commande
+
+```javascript
+const VendingMachine = require('./src/VendingMachine');
+
+const machine = new VendingMachine();
+machine.initialize();
+
+// Sélectionner un produit
+machine.selectProduct('A1');
+
+// Insérer de la monnaie
+machine.insertMoney(200);
+
+// Effectuer l'achat
+const result = machine.purchase();
+```
+
+## 🧪 Tests
+
+### Commandes de test disponibles
+
+```bash
+# Tous les tests
 npm test
+
+# Tests avec surveillance des changements
+npm run test:watch
 
 # Tests avec couverture
 npm run test:coverage
 
-# Tests en mode watch
-npm run test:watch
-
-# Tests spécifiques clean
-npm run test:clean
+# Tests essentiels uniquement
+npm run test:essential
 
 # Tests minimaux
 npm run test:minimal
 ```
 
-## 🖥️ Interface Web et Serveur
+### Couverture de code
 
-### 🌐 Lancement de l'Application
+Le projet maintient une couverture de code élevée avec des tests unitaires pour chaque module :
+
+- **VendingMachine** : Tests complets des scénarios d'achat
+- **CoinManager** : Tests du calcul de rendu et gestion des devises
+- **Inventory** : Tests de gestion des stocks
+- **Product** : Tests des opérations sur les produits
+- **TransactionLogger** : Tests de logging
+- **ExternalCoinProvider** : Tests du fournisseur externe
+
+## 📚 API
+
+### VendingMachine
+
+```javascript
+// Initialiser la machine
+machine.initialize()
+
+// Sélectionner un produit
+machine.selectProduct(productId)
+
+// Insérer de la monnaie
+machine.insertMoney(amount)
+
+// Effectuer l'achat
+machine.purchase()
+
+// Récupérer la monnaie
+machine.returnMoney()
+
+// Changer de devise
+machine.changeCurrency(currency)
+```
+
+### Inventory
+
+```javascript
+// Ajouter un produit
+inventory.addProduct(product)
+
+// Réapprovisionner
+inventory.restockProduct(productId, quantity)
+
+// Vérifier disponibilité
+inventory.isProductAvailable(productId)
+```
+
+### CoinManager
+
+```javascript
+// Calculer le rendu
+coinManager.calculateChange(amount)
+
+// Vérifier si rendu possible
+coinManager.canMakeChange(amount)
+
+// Obtenir le total d'argent
+coinManager.getTotalMoney()
+```
+
+## 🛠️ Développement
+
+### Structure de développement
+
+- **ES6+** : Utilisation des fonctionnalités modernes de JavaScript
+- **Modules CommonJS** : Pour la compatibilité Node.js
+- **Architecture modulaire** : Séparation claire des responsabilités
+- **Tests unitaires** : Coverage avec Jest
+- **Interface web** : HTML5, CSS3, JavaScript vanilla
+
+### Scripts de développement
+
 ```bash
-# Installation des dépendances
-npm install
-
-# Lancement du serveur
-npm start
-# ou en mode développement
+# Développement avec rechargement automatique
 npm run dev
 
-# Accès à l'interface
-# http://localhost:3000
+# Tests en mode surveillance
+npm run test:watch
+
+# Nettoyage et tests
+npm run test:clean
 ```
 
-### 🎨 Fonctionnalités Interface Web
-- **Interface Responsive** : Compatible mobile et desktop
-- **Sélecteur de Devise** : Changement EUR/USD/GBP en temps réel
-- **Affichage du Crédit** : Solde en devise sélectionnée
-- **Grille de Produits** : Affichage des produits avec prix convertis
-- **Panneau de Paiement** : Insertion de pièces/billets
-- **Mode Administrateur** : Gestion stocks et historique
-- **Notifications** : Messages de succès/erreur contextuels
+### Contribuer
 
-### 🔧 Mode Administrateur
-- **Accès** : Clic sur l'icône d'engrenage ⚙️
-- **Restockage** : Réapprovisionnement des produits
-- **Gestion Monnaie** : Ajout/retrait de pièces
-- **Historique** : Consultation des transactions
-- **Statistiques** : Ventes et performances
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/nouvelle-fonctionnalite`)
+3. Commit les changements (`git commit -am 'Ajout nouvelle fonctionnalité'`)
+4. Push la branche (`git push origin feature/nouvelle-fonctionnalite`)
+5. Créer une Pull Request
 
-## 📊 Logging et Monitoring
+## 📄 Licence
 
-### 📝 Types de Transactions Loggées
-- **Purchase** : Achats réussis avec détails produit
-- **Cancel** : Annulations utilisateur
-- **Error** : Erreurs système et utilisateur
-- **Restock** : Réapprovisionnements administrateur
-- **Admin** : Actions administratives
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-### 📈 Données Collectées
-- **ID Transaction** : Identifiant unique
-- **Timestamp** : Date/heure précise
-- **Type et Statut** : Catégorie et succès/échec
-- **Montant** : Argent impliqué
-- **Produit** : ID et détails du produit
-- **Détails** : Informations contextuelles
+## 👥 Auteur
 
-### 🔍 Fonctions d'Analyse
-```javascript
-// Récupérer toutes les transactions
-logger.getAllTransactions()
+**Étudiant** - Projet universitaire de tests unitaires
 
-// Filtrer par type
-logger.getTransactionsByType('purchase')
+---
 
-// Filtrer par période
-logger.getTransactionsByPeriod(startDate, endDate)
-
-// Statistiques de ventes
-logger.getTotalSales()
-```
+> 💡 **Note** : Ce projet a été développé dans le cadre d'un exercice pédagogique sur les tests unitaires et l'architecture logicielle. Il démontre les bonnes pratiques en matière de développement JavaScript, tests automatisés, et conception modulaire.
