@@ -3,9 +3,6 @@ const Inventory = require("./Inventory");
 const { Currency, CoinManager } = require("./CoinManager");
 const { TransactionLogger } = require("./TransactionLogger");
 
-/**
- * Distributeur automatique principal
- */
 class VendingMachine {
   constructor(
     inventory = null,
@@ -20,36 +17,26 @@ class VendingMachine {
     this.selectedProduct = null;
   }
 
-  /**
-   * Initialise la machine avec des produits et de la monnaie
-   */
   initialize() {
-    // Ajouter des produits de démonstration
     this.inventory.addProduct(new Product("A1", "Coca-Cola", 150, 10));
     this.inventory.addProduct(new Product("A2", "Pepsi", 150, 8));
     this.inventory.addProduct(new Product("B1", "Chips", 120, 15));
     this.inventory.addProduct(new Product("B2", "Chocolat", 200, 5));
     this.inventory.addProduct(new Product("C1", "Eau", 100, 20));
 
-    // Ajouter de la monnaie initiale
-    this.coinManager.addCoins(1, 100); // 1 centime
-    this.coinManager.addCoins(2, 100); // 2 centimes
-    this.coinManager.addCoins(5, 100); // 5 centimes
-    this.coinManager.addCoins(10, 50); // 10 centimes
-    this.coinManager.addCoins(20, 50); // 20 centimes
-    this.coinManager.addCoins(50, 50); // 50 centimes
-    this.coinManager.addCoins(100, 30); // 1 euro
-    this.coinManager.addCoins(200, 20); // 2 euros
-    this.coinManager.addCoins(500, 10); // 5 euros
-    this.coinManager.addCoins(1000, 5); // 10 euros
-    this.coinManager.addCoins(2000, 2); // 20 euros
+    this.coinManager.addCoins(1, 100);
+    this.coinManager.addCoins(2, 100);
+    this.coinManager.addCoins(5, 100);
+    this.coinManager.addCoins(10, 50);
+    this.coinManager.addCoins(20, 50);
+    this.coinManager.addCoins(50, 50);
+    this.coinManager.addCoins(100, 30);
+    this.coinManager.addCoins(200, 20);
+    this.coinManager.addCoins(500, 10);
+    this.coinManager.addCoins(1000, 5);
+    this.coinManager.addCoins(2000, 2);
   }
 
-  /**
-   * Sélectionne un produit
-   * @param {string} productId - ID du produit
-   * @returns {Object} Informations sur la sélection
-   */
   selectProduct(productId) {
     const product = this.inventory.getProduct(productId);
 
@@ -78,11 +65,6 @@ class VendingMachine {
     };
   }
 
-  /**
-   * Insère de l'argent
-   * @param {number} amount - Montant en centimes
-   * @returns {Object} État de l'insertion
-   */
   insertMoney(amount) {
     const validDenominations = Array.from(
       this.coinManager.getDenominations().keys()
@@ -108,10 +90,6 @@ class VendingMachine {
     };
   }
 
-  /**
-   * Effectue l'achat
-   * @returns {Object} Résultat de l'achat
-   */
   purchase() {
     if (!this.selectedProduct) {
       return { success: false, message: "Aucun produit sélectionné" };
@@ -132,7 +110,6 @@ class VendingMachine {
 
     const changeAmount = this.insertedMoney - product.price;
 
-    // Vérifier si on peut rendre la monnaie
     if (changeAmount > 0 && !this.coinManager.canMakeChange(changeAmount)) {
       const error = "Impossible de rendre la monnaie exacte";
       this.transactionLogger.log(
@@ -149,16 +126,13 @@ class VendingMachine {
     }
 
     try {
-      // Distribuer le produit
       this.inventory.dispenseProduct(product.id);
 
-      // Rendre la monnaie
       let change = new Map();
       if (changeAmount > 0) {
         change = this.coinManager.dispenseChange(changeAmount);
       }
 
-      // Enregistrer la transaction
       this.transactionLogger.log("sale", product.id, product.price, true, {
         productName: product.name,
         moneyInserted: this.insertedMoney,
@@ -178,7 +152,6 @@ class VendingMachine {
         changeCoins: this.formatChangeCoins(change),
       };
 
-      // Réinitialiser l'état
       this.insertedMoney = 0;
       this.selectedProduct = null;
 
@@ -197,10 +170,6 @@ class VendingMachine {
     }
   }
 
-  /**
-   * Annule la transaction et rend l'argent inséré
-   * @returns {Object} Résultat de l'annulation
-   */
   cancel() {
     if (this.insertedMoney === 0) {
       return { success: false, message: "Aucun argent inséré" };
@@ -221,7 +190,6 @@ class VendingMachine {
         refundCoins: this.formatChangeCoins(change),
       };
 
-      // Réinitialiser l'état
       this.insertedMoney = 0;
       this.selectedProduct = null;
 
@@ -237,11 +205,6 @@ class VendingMachine {
     }
   }
 
-  /**
-   * Formate les pièces rendues pour l'affichage
-   * @param {Map<number, number>} coins - Map des pièces
-   * @returns {Array<Object>}
-   */
   formatChangeCoins(coins) {
     const result = [];
     for (const [denomination, count] of coins) {
@@ -254,10 +217,6 @@ class VendingMachine {
     return result.sort((a, b) => b.value - a.value);
   }
 
-  /**
-   * Récupère l'état actuel de la machine
-   * @returns {Object}
-   */
   getStatus() {
     return {
       insertedMoney: this.insertedMoney,

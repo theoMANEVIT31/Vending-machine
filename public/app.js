@@ -1,7 +1,5 @@
-// Import des classes métier
 import { VendingMachine } from "./modules/VendingMachine.js";
 import { Product } from "./modules/Product.js";
-
 class VendingMachineUI {
   constructor() {
     this.vendingMachine = new VendingMachine();
@@ -10,9 +8,7 @@ class VendingMachineUI {
     this.setupEventListeners();
     this.updateDisplay();
   }
-
   initializeProducts() {
-    // Ajouter quelques produits de démonstration
     const products = [
       new Product("A1", "Coca-Cola", 1.5),
       new Product("A2", "Pepsi", 1.5),
@@ -24,50 +20,38 @@ class VendingMachineUI {
       new Product("C2", "Jus Orange", 2.5),
       new Product("C3", "Thé Glacé", 1.9),
     ];
-
     products.forEach((product) => {
       this.vendingMachine.inventory.addProduct(product, 5);
     });
   }
-
   setupEventListeners() {
-    // Boutons de monnaie
     document.querySelectorAll(".coin-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const value = parseFloat(e.target.dataset.value);
         this.insertCoin(value, e.target);
       });
     });
-
-    // Boutons d'action
     document.getElementById("cancel-btn").addEventListener("click", () => {
       this.cancelTransaction();
     });
-
     document
       .getElementById("return-change-btn")
       .addEventListener("click", () => {
         this.returnChange();
       });
-
-    // Slots de récupération - permettre de vider en cliquant
     document.getElementById("product-slot").addEventListener("click", () => {
       this.clearProductSlot();
     });
-
     document.getElementById("change-slot").addEventListener("click", () => {
       this.clearChangeSlot();
     });
   }
-
   insertCoin(value, buttonElement) {
     try {
-      // Animation de la pièce
       buttonElement.classList.add("coin-insert-animation");
       setTimeout(() => {
         buttonElement.classList.remove("coin-insert-animation");
       }, 600);
-
       this.vendingMachine.insertCoin(value);
       this.updateDisplay();
       this.showMessage(`Pièce de ${value.toFixed(2)}€ insérée`, "success");
@@ -75,43 +59,31 @@ class VendingMachineUI {
       this.showMessage(error.message, "error");
     }
   }
-
   selectProduct(code) {
     try {
       const product = this.vendingMachine.inventory.getProduct(code);
       if (!product) {
         throw new Error("Produit non trouvé");
       }
-
       if (this.vendingMachine.inventory.getStock(code) === 0) {
         throw new Error("Produit en rupture de stock");
       }
-
       this.selectedProduct = code;
       this.updateProductSelection();
       this.showMessage(`Produit ${code} sélectionné`, "success");
-
-      // Tenter l'achat automatiquement
       this.attemptPurchase();
     } catch (error) {
       this.showMessage(error.message, "error");
     }
   }
-
   attemptPurchase() {
     if (!this.selectedProduct) return;
-
     try {
       const result = this.vendingMachine.purchaseProduct(this.selectedProduct);
-
-      // Afficher le produit dans le slot
       this.displayProduct(result.product);
-
-      // Afficher la monnaie rendue si il y en a
       if (result.change && result.change.length > 0) {
         this.displayChange(result.change);
       }
-
       this.selectedProduct = null;
       this.updateDisplay();
       this.showMessage("Achat réussi ! Récupérez votre produit.", "success");
@@ -119,7 +91,6 @@ class VendingMachineUI {
       this.showMessage(error.message, "error");
     }
   }
-
   cancelTransaction() {
     try {
       const refund = this.vendingMachine.cancelTransaction();
@@ -132,14 +103,12 @@ class VendingMachineUI {
       } else {
         this.showMessage("Aucune transaction à annuler.", "info");
       }
-
       this.selectedProduct = null;
       this.updateDisplay();
     } catch (error) {
       this.showMessage(error.message, "error");
     }
   }
-
   returnChange() {
     try {
       const change = this.vendingMachine.returnChange();
@@ -154,7 +123,6 @@ class VendingMachineUI {
       this.showMessage(error.message, "error");
     }
   }
-
   displayProduct(product) {
     const slot = document.getElementById("product-slot");
     slot.innerHTML = `
@@ -163,19 +131,16 @@ class VendingMachineUI {
         `;
     slot.classList.add("has-product");
   }
-
   displayChange(coins) {
     const slot = document.getElementById("change-slot");
     const total = coins.reduce((sum, coin) => sum + coin, 0);
     const coinsList = coins.map((coin) => `${coin.toFixed(2)}€`).join(", ");
-
     slot.innerHTML = `
             <i class="fas fa-coins"></i>
             <span><strong>${total.toFixed(2)}€</strong><br>${coinsList}</span>
         `;
     slot.classList.add("has-change");
   }
-
   clearProductSlot() {
     const slot = document.getElementById("product-slot");
     slot.innerHTML = `
@@ -184,7 +149,6 @@ class VendingMachineUI {
         `;
     slot.classList.remove("has-product");
   }
-
   clearChangeSlot() {
     const slot = document.getElementById("change-slot");
     slot.innerHTML = `
@@ -193,37 +157,29 @@ class VendingMachineUI {
         `;
     slot.classList.remove("has-change");
   }
-
   updateDisplay() {
     this.updateBalance();
     this.updateProducts();
   }
-
   updateBalance() {
     const balanceElement = document.getElementById("balance");
     balanceElement.textContent = `${this.vendingMachine.insertedMoney.toFixed(
       2
     )}€`;
   }
-
   updateProducts() {
     const grid = document.getElementById("products-grid");
     grid.innerHTML = "";
-
     const products = this.vendingMachine.inventory.getAllProducts();
-
     Object.entries(products).forEach(([code, productData]) => {
       const card = document.createElement("div");
       card.className = "product-card fade-in";
-
       if (productData.stock === 0) {
         card.classList.add("out-of-stock");
       }
-
       if (this.selectedProduct === code) {
         card.classList.add("selected");
       }
-
       card.innerHTML = `
                 <div class="product-code">${code}</div>
                 <div class="product-name">${productData.product.name}</div>
@@ -232,20 +188,16 @@ class VendingMachineUI {
                 )}€</div>
                 <div class="product-stock">Stock: ${productData.stock}</div>
             `;
-
       if (productData.stock > 0) {
         card.addEventListener("click", () => this.selectProduct(code));
       }
-
       grid.appendChild(card);
     });
   }
-
   updateProductSelection() {
     document.querySelectorAll(".product-card").forEach((card) => {
       card.classList.remove("selected");
     });
-
     if (this.selectedProduct) {
       const cards = Array.from(document.querySelectorAll(".product-card"));
       const selectedCard = cards.find(
@@ -258,16 +210,12 @@ class VendingMachineUI {
       }
     }
   }
-
   showMessage(text, type) {
     const messageContainer = document.getElementById("message-container");
     const message = document.createElement("div");
     message.className = `message ${type} slide-in`;
     message.textContent = text;
-
     messageContainer.appendChild(message);
-
-    // Supprimer le message après 3 secondes
     setTimeout(() => {
       if (message.parentNode) {
         message.classList.add("slide-out");
@@ -280,8 +228,6 @@ class VendingMachineUI {
     }, 3000);
   }
 }
-
-// Initialiser l'application
 document.addEventListener("DOMContentLoaded", () => {
   new VendingMachineUI();
 });
