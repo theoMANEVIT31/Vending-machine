@@ -59,4 +59,22 @@ describe("CoinManager - Tests Clean", () => {
     expect(result.get(100)).toBe(1);
     expect(result.get(50)).toBe(1);
   });
+
+  test("should convert between currencies", () => {
+    const eur = new Currency("EUR", "Euro", 1);
+    const usd = new Currency("USD", "Dollar", 1.1);
+    
+    const result = eur.convert(110, usd);
+    
+    expect(result).toBe(121);
+  });
+
+  test("should refill from external provider", () => {
+    const coinManager = new CoinManager();
+    
+    const received = coinManager.refillFromExternal(100, 10);
+    
+    expect(received).toBe(10);
+    expect(coinManager.getDenominations().get(100)).toBe(10);
+  });
 });

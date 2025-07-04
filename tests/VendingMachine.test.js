@@ -41,4 +41,14 @@ describe("VendingMachine - Tests Clean", () => {
     expect(result.availableProducts).toHaveLength(1);
     expect(result.totalMoney).toBeDefined();
   });
+  test("should log restocking", () => {
+    const vendingMachine = new VendingMachine();
+    vendingMachine.initialize();
+
+    vendingMachine.restockProduct("A1", 5);
+
+    const transactions = vendingMachine.transactionLogger.getTransactionsByType("restock");
+    expect(transactions.length).toBe(1);
+    expect(transactions[0].productId).toBe("A1");
+  });
 });

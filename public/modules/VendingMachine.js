@@ -111,6 +111,11 @@ class VendingMachine {
       throw new Error(`Produit ${productCode} non trouvé`);
     }
     this.inventory.addProduct(product, quantity);
+    
+    this.transactionLogger.log("restock", productCode, 0, true, {
+      quantity: quantity,
+      message: `Restocked ${quantity} units of product ${productCode}`
+    });
   }
   
   addCash(denomination, quantity) {

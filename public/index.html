@@ -11,6 +11,14 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-shopping-cart"></i> Distributeur Automatique</h1>
+            <div class="currency-selector">
+                <label for="currency-select">Devise:</label>
+                <select id="currency-select">
+                    <option value="EUR">EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                </select>
+            </div>
             <div class="balance-display">
                 <span>Crédit: </span>
                 <span id="balance">0.00€</span>
@@ -18,15 +26,12 @@
         </header>
 
         <main>
-            <!-- Section des produits -->
             <section class="products-section">
                 <h2>Sélectionnez votre produit</h2>
                 <div class="products-grid" id="products-grid">
-                    <!-- Les produits seront générés dynamiquement -->
                 </div>
             </section>
 
-            <!-- Section de paiement -->
             <section class="payment-section">
                 <h2>Insérer la monnaie</h2>
                 <div class="coins-container">
@@ -61,6 +66,32 @@
 
         <!-- Messages et notifications -->
         <div id="message-container" class="message-container"></div>
+
+        <!-- Section d'administration (cachée par défaut) -->
+        <div id="admin-panel" class="admin-panel" style="display: none;">
+            <h3><i class="fas fa-cog"></i> Administration</h3>
+            <div class="admin-section">
+                <h4>Devises</h4>
+                <button id="test-currency-btn" class="admin-action-btn">Passer en USD ($)</button>
+            </div>
+            <div class="admin-section">
+                <h4>Réapprovisionnement Externe</h4>
+                <button id="refill-coins-btn" class="admin-action-btn">Recharger Pièces depuis Externe</button>
+            </div>
+            <div class="admin-section">
+                <h4>Restocking Produits</h4>
+                <button id="restock-product-btn" class="admin-action-btn">Restockage Automatique (≤5 unités)</button>
+            </div>
+            <div class="admin-section">
+                <h4>Historique Transactions</h4>
+                <button id="show-logs-btn" class="admin-action-btn">Voir Logs Détaillés</button>
+            </div>
+            <button id="close-admin-btn" class="close-admin-btn">Fermer</button>
+        </div>
+
+        <div class="admin-controls">
+                <button id="admin-btn" class="admin-btn"><i class="fas fa-cog"></i> Admin</button>
+            </div>
     </div>
 
     <script type="module" src="app.js"></script>

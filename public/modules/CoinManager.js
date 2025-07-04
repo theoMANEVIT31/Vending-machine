@@ -1,19 +1,25 @@
-
 class Currency {
   constructor(code, name, symbol = "") {
     this.code = code;
     this.name = name;
     this.symbol = symbol;
   }
+  
+  convert(amount, targetCurrency) {
+    const exchangeRates = { EUR: 1, USD: 1.1, GBP: 0.85 };
+    const fromRate = exchangeRates[this.code] || 1;
+    const toRate = exchangeRates[targetCurrency.code] || 1;
+    return Math.round((amount / fromRate) * toRate);
+  }
 }
 
 class CoinManager {
   constructor(currency = new Currency("EUR", "Euro", "€")) {
     this.currency = currency;
-    this.denominations = [0.05, 0.1, 0.2, 0.5, 1.0, 2.0]; // en euros
+    this.denominations = [0.05, 0.1, 0.2, 0.5, 1.0, 2.0];
     this.coinInventory = new Map();
     this.denominations.forEach((denom) => {
-      this.coinInventory.set(denom, 10); // 10 pièces de chaque dénomination
+      this.coinInventory.set(denom, 10);
     });
   }
   
@@ -101,6 +107,12 @@ class CoinManager {
   
   getAcceptedDenominations() {
     return [...this.denominations];
+  }
+  
+  refillFromExternal(denomination, amount) {
+    const received = Math.min(amount, 50);
+    this.addCoins(denomination, received);
+    return received;
   }
 }
 export { Currency, CoinManager };

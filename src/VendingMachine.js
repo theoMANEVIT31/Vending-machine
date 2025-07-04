@@ -205,6 +205,14 @@ class VendingMachine {
     }
   }
 
+  restockProduct(productId, quantity) {
+    this.inventory.restockProduct(productId, quantity);
+    this.transactionLogger.log("restock", productId, 0, true, {
+      quantity: quantity,
+      message: `Restocked ${quantity} units of product ${productId}`,
+    });
+  }
+
   formatChangeCoins(coins) {
     const result = [];
     for (const [denomination, count] of coins) {

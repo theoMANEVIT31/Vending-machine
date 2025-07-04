@@ -1,14 +1,22 @@
+const ExternalCoinProvider = require("./ExternalCoinProvider");
+
 class Currency {
   constructor(code, name, exchangeRate = 1) {
     this.code = code;
     this.name = name;
     this.exchangeRate = exchangeRate;
   }
+
+  convert(amount, targetCurrency) {
+    const baseAmount = amount / this.exchangeRate;
+    return Math.round(baseAmount * targetCurrency.exchangeRate);
+  }
 }
 
 class CoinManager {
-  constructor(currency = new Currency("EUR", "Euro")) {
+  constructor(currency = new Currency("EUR", "Euro"), externalProvider = null) {
     this.currency = currency;
+    this.externalProvider = externalProvider || new ExternalCoinProvider();
     this.denominations = new Map([
       [1, 0],
       [2, 0],
@@ -91,6 +99,14 @@ class CoinManager {
 
   getDenominations() {
     return new Map(this.denominations);
+  }
+
+  refillFromExternal(denomination, amount) {
+    const received = this.externalProvider.requestCoins(denomination, amount);
+    if (received > 0) {
+      this.addCoins(denomination, received);
+    }
+    return received;
   }
 }
 

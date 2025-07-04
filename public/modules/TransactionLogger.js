@@ -1,4 +1,3 @@
-
 class TransactionLogger {
   constructor() {
     this.transactions = [];
@@ -36,6 +35,15 @@ class TransactionLogger {
     return this.logTransaction("REFUND", {
       coinsReturned: coins,
       totalAmount: coins.reduce((sum, coin) => sum + coin, 0),
+    });
+  }
+  
+  log(type, productId = null, amount = 0, success = true, details = {}) {
+    return this.logTransaction(type.toUpperCase(), {
+      productId: productId,
+      amount: amount,
+      success: success,
+      details: details
     });
   }
   

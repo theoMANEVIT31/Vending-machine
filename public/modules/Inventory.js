@@ -1,7 +1,7 @@
 
 class Inventory {
   constructor() {
-    this.products = new Map(); // code -> { product, stock }
+    this.products = new Map();
   }
   
   addProduct(product, quantity = 1) {

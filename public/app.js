@@ -4,6 +4,9 @@ class VendingMachineUI {
   constructor() {
     this.vendingMachine = new VendingMachine();
     this.selectedProduct = null;
+    this.currentCurrency = "EUR";
+    this.exchangeRates = { EUR: 1, USD: 1.1, GBP: 0.85 };
+    this.currencySymbols = { EUR: "€", USD: "$", GBP: "£" };
     this.initializeProducts();
     this.setupEventListeners();
     this.updateDisplay();
@@ -45,6 +48,36 @@ class VendingMachineUI {
     document.getElementById("change-slot").addEventListener("click", () => {
       this.clearChangeSlot();
     });
+    
+    // Currency change listener
+    document.getElementById("currency-select").addEventListener("change", (e) => {
+      this.changeCurrency(e.target.value);
+    });
+
+    // Admin event listeners
+    document.getElementById("admin-btn").addEventListener("click", () => {
+      this.toggleAdminPanel();
+    });
+
+    document.getElementById("close-admin-btn").addEventListener("click", () => {
+      this.closeAdminPanel();
+    });
+
+    document.getElementById("test-currency-btn").addEventListener("click", () => {
+      this.testCurrencyConversion();
+    });
+
+    document.getElementById("refill-coins-btn").addEventListener("click", () => {
+      this.refillCoinsFromExternal();
+    });
+    
+    document.getElementById("restock-product-btn").addEventListener("click", () => {
+      this.autoRestockProducts();
+    });
+    
+    document.getElementById("show-logs-btn").addEventListener("click", () => {
+      this.showTransactionLogs();
+    });
   }
   insertCoin(value, buttonElement) {
     try {
@@ -54,7 +87,7 @@ class VendingMachineUI {
       }, 600);
       this.vendingMachine.insertCoin(value);
       this.updateDisplay();
-      this.showMessage(`Pièce de ${value.toFixed(2)}€ insérée`, "success");
+      this.showMessage(`Pièce de ${this.formatBalance(value)} insérée`, "success");
     } catch (error) {
       this.showMessage(error.message, "error");
     }
@@ -80,6 +113,13 @@ class VendingMachineUI {
     if (!this.selectedProduct) return;
     try {
       const result = this.vendingMachine.purchaseProduct(this.selectedProduct);
+      
+      const lastTransaction = this.vendingMachine.transactionLogger.getAllTransactions().slice(-1)[0];
+      if (lastTransaction && lastTransaction.type === "PURCHASE") {
+        lastTransaction.currency = this.currentCurrency;
+        lastTransaction.exchangeRate = this.exchangeRates[this.currentCurrency];
+      }
+      
       this.displayProduct(result.product);
       if (result.change && result.change.length > 0) {
         this.displayChange(result.change);
@@ -134,10 +174,10 @@ class VendingMachineUI {
   displayChange(coins) {
     const slot = document.getElementById("change-slot");
     const total = coins.reduce((sum, coin) => sum + coin, 0);
-    const coinsList = coins.map((coin) => `${coin.toFixed(2)}€`).join(", ");
+    const coinsList = coins.map((coin) => this.formatBalance(coin)).join(", ");
     slot.innerHTML = `
             <i class="fas fa-coins"></i>
-            <span><strong>${total.toFixed(2)}€</strong><br>${coinsList}</span>
+            <span><strong>${this.formatBalance(total)}</strong><br>${coinsList}</span>
         `;
     slot.classList.add("has-change");
   }
@@ -160,12 +200,11 @@ class VendingMachineUI {
   updateDisplay() {
     this.updateBalance();
     this.updateProducts();
+    this.updateCoinButtons();
   }
   updateBalance() {
     const balanceElement = document.getElementById("balance");
-    balanceElement.textContent = `${this.vendingMachine.insertedMoney.toFixed(
-      2
-    )}€`;
+    balanceElement.textContent = this.formatBalance(this.vendingMachine.insertedMoney);
   }
   updateProducts() {
     const grid = document.getElementById("products-grid");
@@ -183,9 +222,7 @@ class VendingMachineUI {
       card.innerHTML = `
                 <div class="product-code">${code}</div>
                 <div class="product-name">${productData.product.name}</div>
-                <div class="product-price">${productData.product.price.toFixed(
-                  2
-                )}€</div>
+                <div class="product-price">${this.formatPrice(productData.product.price)}</div>
                 <div class="product-stock">Stock: ${productData.stock}</div>
             `;
       if (productData.stock > 0) {
@@ -226,6 +263,196 @@ class VendingMachineUI {
         }, 300);
       }
     }, 3000);
+  }
+
+  toggleAdminPanel() {
+    const panel = document.getElementById("admin-panel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  }
+
+  closeAdminPanel() {
+    document.getElementById("admin-panel").style.display = "none";
+  }
+
+  changeCurrency(newCurrency) {
+    if (this.currentCurrency === newCurrency) return;
+    
+    const oldRate = this.exchangeRates[this.currentCurrency];
+    const newRate = this.exchangeRates[newCurrency];
+    
+    if (this.vendingMachine.insertedMoney > 0) {
+      this.vendingMachine.insertedMoney = Math.round((this.vendingMachine.insertedMoney / oldRate) * newRate * 100) / 100;
+    }
+    
+    this.currentCurrency = newCurrency;
+    this.updateDisplay();
+    
+    this.showMessage(`💱 Devise changée vers ${newCurrency}. Crédit converti.`, "info");
+  }
+  
+  formatPrice(price) {
+    const convertedPrice = Math.round((price / this.exchangeRates.EUR) * this.exchangeRates[this.currentCurrency] * 100) / 100;
+    const symbol = this.currencySymbols[this.currentCurrency];
+    return `${convertedPrice.toFixed(2)}${symbol}`;
+  }
+  
+  formatBalance(amount) {
+    const symbol = this.currencySymbols[this.currentCurrency];
+    return `${amount.toFixed(2)}${symbol}`;
+  }
+  
+  testCurrencyConversion() {
+    try {
+      const oldCurrency = this.currentCurrency;
+      let newCurrency;
+      
+      if (this.currentCurrency === "EUR") {
+        newCurrency = "USD";
+      } else {
+        newCurrency = "EUR";
+      }
+      
+      this.changeCurrency(newCurrency);
+      
+      document.getElementById("currency-select").value = newCurrency;
+      
+      const button = document.getElementById("test-currency-btn");
+      if (newCurrency === "USD") {
+        button.textContent = "Revenir en EUR (€)";
+      } else {
+        button.textContent = "Passer en USD ($)";
+      }
+      
+      const currencyName = newCurrency === "USD" ? "dollars" : "euros";
+      this.showMessage(`💱 Devise changée de ${oldCurrency} vers ${newCurrency}\n🔄 Tous les prix et montants sont maintenant en ${currencyName}`, "success");
+    } catch (error) {
+      this.showMessage(`❌ Erreur lors du changement de devise: ${error.message}`, "error");
+    }
+  }
+
+  refillCoinsFromExternal() {
+    try {
+      const refilled = this.vendingMachine.coinManager.refillFromExternal(1.0, 10);
+      const coinValue = this.formatBalance(1.0);
+      this.showMessage(`✅ Rechargé ${refilled} pièces de ${coinValue} depuis le fournisseur externe`, "success");
+      
+      this.updateDisplay();
+    } catch (error) {
+      this.showMessage(`❌ Erreur lors du rechargement: ${error.message}`, "error");
+    }
+  }
+
+  autoRestockProducts() {
+    try {
+      const products = this.vendingMachine.inventory.getAllProducts();
+      let restockedProducts = [];
+      
+      Object.entries(products).forEach(([code, productData]) => {
+        const currentStock = productData.stock;
+        if (currentStock < 5) {
+          const quantityToAdd = 5 - currentStock;
+          this.vendingMachine.restockProduct(code, quantityToAdd);
+          restockedProducts.push({
+            code: code,
+            name: productData.product.name,
+            quantityAdded: quantityToAdd,
+            newStock: 5
+          });
+        }
+      });
+      
+      if (restockedProducts.length === 0) {
+        this.showMessage(`ℹ️ Aucun produit à restacker. Tous les produits ont au moins 5 unités en stock.`, "info");
+      } else {
+        let message = `✅ Restocking automatique effectué:\n`;
+        restockedProducts.forEach(product => {
+          message += `• ${product.name} (${product.code}): +${product.quantityAdded} unités → Stock: ${product.newStock}\n`;
+        });
+        message += `📝 ${restockedProducts.length} transaction(s) loggée(s) automatiquement`;
+        
+        this.showMessage(message, "success");
+        this.updateDisplay();
+      }
+    } catch (error) {
+      this.showMessage(`❌ Erreur lors du restocking: ${error.message}`, "error");
+    }
+  }
+
+  showTransactionLogs() {
+    const transactions = this.vendingMachine.transactionLogger.getAllTransactions();
+    const recentTx = transactions.slice(-3);
+    
+    let logMessage = `📊 Total transactions: ${transactions.length}\n\n`;
+    logMessage += `📋 Dernières transactions:\n`;
+    
+    recentTx.forEach((tx, index) => {
+      const time = tx.timestamp.toLocaleTimeString();
+      logMessage += `${index + 1}. [${time}] ${tx.type}`;
+      
+      if (tx.type === "PURCHASE") {
+        const txCurrency = tx.currency || "EUR";
+        const txRate = tx.exchangeRate || 1;
+        const symbol = this.currencySymbols[txCurrency];
+        
+        const originalProductPrice = Math.round((tx.productPrice / this.exchangeRates.EUR) * txRate * 100) / 100;
+        const originalAmountPaid = Math.round((tx.amountPaid / this.exchangeRates.EUR) * txRate * 100) / 100;
+        const originalChange = Math.round((tx.totalChange / this.exchangeRates.EUR) * txRate * 100) / 100;
+        
+        logMessage += ` - ${tx.productName} (${originalProductPrice.toFixed(2)}${symbol})`;
+        logMessage += ` - Payé: ${originalAmountPaid.toFixed(2)}${symbol}`;
+        if (tx.totalChange > 0) logMessage += ` - Rendu: ${originalChange.toFixed(2)}${symbol}`;
+      } else if (tx.type === "RESTOCK") {
+        logMessage += ` - Produit: ${tx.productId}`;
+        logMessage += ` - Quantité: +${tx.details.quantity}`;
+      } else if (tx.type === "REFUND") {
+        logMessage += ` - Montant rendu: ${this.formatBalance(tx.totalAmount)}`;
+        if (tx.coinsReturned && tx.coinsReturned.length > 0) {
+          const coinsList = tx.coinsReturned.map(coin => this.formatBalance(coin)).join(", ");
+          logMessage += ` - Pièces: ${coinsList}`;
+        }
+      } else if (tx.type === "CANCELLATION") {
+        logMessage += ` - Montant remboursé: ${this.formatBalance(tx.amountRefunded)}`;
+      } else if (tx.productId) {
+        logMessage += ` - Produit: ${tx.productId}`;
+      }
+      
+      if (tx.amount > 0) logMessage += ` - Montant: ${this.formatBalance(tx.amount)}`;
+      if (tx.success !== undefined) {
+        logMessage += tx.success ? ` ✅` : ` ❌`;
+      }
+      logMessage += `\n`;
+    });
+    
+    this.showMessage(logMessage, "info");
+  }
+
+  updateCoinButtons() {
+    const coinButtons = document.querySelectorAll(".coin-btn");
+    coinButtons.forEach(btn => {
+      const value = parseFloat(btn.dataset.value);
+      const convertedValue = Math.round((value / this.exchangeRates.EUR) * this.exchangeRates[this.currentCurrency] * 100) / 100;
+      const symbol = this.currencySymbols[this.currentCurrency];
+      
+      if (this.currentCurrency === "EUR") {
+        if (value < 1) {
+          btn.textContent = `${Math.round(value * 100)}¢`;
+        } else {
+          btn.textContent = `${value}€`;
+        }
+      } else if (this.currentCurrency === "USD") {
+        if (convertedValue < 1) {
+          btn.textContent = `${Math.round(convertedValue * 100)}¢`;
+        } else {
+          btn.textContent = `$${convertedValue.toFixed(2)}`;
+        }
+      } else if (this.currentCurrency === "GBP") {
+        if (convertedValue < 1) {
+          btn.textContent = `${Math.round(convertedValue * 100)}p`;
+        } else {
+          btn.textContent = `£${convertedValue.toFixed(2)}`;
+        }
+      }
+    });
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
